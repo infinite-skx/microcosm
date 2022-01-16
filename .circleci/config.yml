@@ -1,59 +1,26 @@
-version: 2
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
 
-defaults: &defaults
-  docker:
-    - image: circleci/node:10
-  working_directory: ~/repo
-
-restore-npm-cache: &restore-npm-cache
-  restore_cache:
-    keys:
-      - v1-dependencies-{{ checksum "package.json" }}
-      - v1-dependencies-
-
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  build:
-    <<: *defaults
+  say-hello:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    docker:
+      - image: cimg/base:stable
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
-      - <<: *restore-npm-cache
-      - run: yarn install
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-  audit:
-    <<: *defaults
-    steps:
-      - checkout
-      - <<: *restore-npm-cache
-      - run: yarn flow
-      - run: yarn lint
-  test-dev:
-    <<: *defaults
-    steps:
-      - checkout
-      - <<: *restore-npm-cache
-      - run: yarn test:cov
-      - run: yarn report-coverage
-  test-prod:
-    <<: *defaults
-    steps:
-      - checkout
-      - <<: *restore-npm-cache
-      - run: yarn test:prod
+      - run:
+          name: "Say hello"
+          command: "echo Hello, World!"
 
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  version: 2
-  microcosm:
+  say-hello-workflow:
     jobs:
-      - build
-      - audit:
-          requires:
-            - build
-      - test-dev:
-          requires:
-            - build
-      - test-prod:
-          requires:
-            - build
+      - say-hello
